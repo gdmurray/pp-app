@@ -1,0 +1,21 @@
+# local / tooling
+.cursor
+.agents
+
+# dependencies
+node_modules
+.pnp
+.pnp.*
+
+# build output
+.next
+out
+build
+dist
+
+# misc
+coverage
+.vercel
+pnpm-lock.yaml
+*.tsbuildinfo
+next-env.d.ts

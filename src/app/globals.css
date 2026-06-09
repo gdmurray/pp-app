@@ -1,0 +1,129 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ─── Practice Porter Design Tokens → shadcn semantic tokens ─────────────── */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+
+  /* PP brand tokens — prefer shadcn semantic tokens (primary, foreground, …) in UI code */
+  --color-pp-blue-light: #EBF4FB;
+  --color-pp-blue-mid: #C7E0F4;
+  --color-pp-blue-dark: #1E5F8E;
+  --color-pp-blue-deeper: #154567;
+  --color-pp-success: #2E9E6B;
+  --color-pp-success-light: #E4F4ED;
+  --color-pp-success-hover: #238056;
+  --color-pp-orange: #E8650A;
+  --color-pp-orange-hover: #C4540A;
+  --color-pp-orange-light: #FFF3EB;
+  --color-pp-orange-edit: #FFF8ED;
+  --color-pp-placeholder: #C7D0D9;
+  --color-pp-hover-subtle: #FAFCFE;
+
+  /* Office identity */
+  --color-office-sunset: #E05A30;
+  --color-office-mountain: #2D7A50;
+  --color-office-crown: #5A4BD1;
+}
+
+:root {
+  /* Map PP blues to shadcn semantic tokens */
+  --background: #EBF4FB;
+  --foreground: #1A2533;
+  --card: #FFFFFF;
+  --card-foreground: #1A2533;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A2533;
+  --primary: #3A86C8;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F4F6F8;
+  --secondary-foreground: #3D4F63;
+  --muted: #F4F6F8;
+  --muted-foreground: #6B7A8D;
+  --accent: #EBF4FB;
+  --accent-foreground: #1E5F8E;
+  --destructive: #D94F4F;
+  --border: #DDE3EA;
+  --input: #DDE3EA;
+  --ring: #3A86C8;
+  --chart-1: #3A86C8;
+  --chart-2: #E05A30;
+  --chart-3: #2D7A50;
+  --chart-4: #5A4BD1;
+  --chart-5: #E8650A;
+  --radius: 0.5rem;
+
+  /* Sidebar — matches HTML .sidebar background */
+  --sidebar: #154567;
+  --sidebar-foreground: rgba(255,255,255,0.85);
+  --sidebar-primary: #3A86C8;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: rgba(255,255,255,0.14);
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: rgba(255,255,255,0.08);
+  --sidebar-ring: rgba(255,255,255,0.3);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+/* ─── Practice Porter global utilities ───────────────────────────────────── */
+
+/* Section card gradient header */
+.section-card-header {
+  background: linear-gradient(135deg, var(--color-pp-blue-dark) 0%, var(--primary) 100%);
+  color: white;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-pp-blue-mid); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
