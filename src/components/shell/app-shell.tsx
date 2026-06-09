@@ -5,12 +5,14 @@ import { usePathname } from 'next/navigation'
 import { AppSidebar } from './app-sidebar'
 import { AppHeader } from './app-header'
 import { MissedCallModal } from '@/components/modals/missed-call-modal'
+import type { Office } from '@/lib/patient-utils'
 
 interface AppShellProps {
   children: React.ReactNode
+  offices: Office[]
 }
 
-export function AppShell({ children }: AppShellProps) {
+export function AppShell({ children, offices }: AppShellProps) {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
   const [missedCallOpen, setMissedCallOpen] = useState(false)
@@ -33,6 +35,7 @@ export function AppShell({ children }: AppShellProps) {
       <MissedCallModal
         open={missedCallOpen}
         onClose={() => setMissedCallOpen(false)}
+        offices={offices}
       />
     </div>
   )

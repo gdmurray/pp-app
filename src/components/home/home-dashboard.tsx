@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Users, CalendarDays, DollarSign, TrendingUp, CheckCircle2, Clock, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { colors } from '@/lib/design-tokens'
-import { OFFICE_COLORS } from '@/lib/offices'
+import { resolveOfficeColor } from '@/lib/offices'
 import { patientIsBooked, patientApptDate, patientFullName, getOfficeColor } from '@/lib/patient-utils'
 import { getBillingMonths, toMonthKey, calcPPFee, calcFirstApptBilling, monthCompletionPercent } from '@/lib/billing/billing-logic'
 import type { Patient, Office, BillingRec } from '@/lib/patient-utils'
@@ -131,7 +131,7 @@ export function HomeDashboard({ allPatients, allOffices, allCalls, allBilling }:
               <div key={office.id} className="flex items-center gap-2">
                 <span
                   className="w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: OFFICE_COLORS[office.key as keyof typeof OFFICE_COLORS] }}
+                  style={{ backgroundColor: resolveOfficeColor(office) }}
                 />
                 <span className="text-xs font-medium text-secondary-foreground flex-1">{office.name}</span>
                 <span className="text-xs text-muted-foreground">{oBooked}/{total}</span>
@@ -148,7 +148,7 @@ export function HomeDashboard({ allPatients, allOffices, allCalls, allBilling }:
                       <div key={p.id} className="flex items-center gap-2 py-1">
                         <span
                           className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: getOfficeColor(office?.key ?? '') }}
+                          style={{ backgroundColor: getOfficeColor(office) }}
                         />
                         <span className="text-xs text-foreground font-medium truncate flex-1">
                           {patientFullName(p)}
@@ -192,7 +192,7 @@ export function HomeDashboard({ allPatients, allOffices, allCalls, allBilling }:
                     <div key={p.id} className="flex items-center gap-2.5">
                       <div
                         className="w-7 h-7 rounded-lg flex flex-col items-center justify-center text-white flex-shrink-0 text-[9px] font-bold leading-tight"
-                        style={{ backgroundColor: getOfficeColor(office?.key ?? '') }}
+                        style={{ backgroundColor: getOfficeColor(office) }}
                       >
                         {dt ? (
                           <>
@@ -234,7 +234,7 @@ export function HomeDashboard({ allPatients, allOffices, allCalls, allBilling }:
               <div key={office.id} className="flex items-center gap-2">
                 <span
                   className="w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: OFFICE_COLORS[office.key as keyof typeof OFFICE_COLORS] }}
+                  style={{ backgroundColor: resolveOfficeColor(office) }}
                 />
                 <span className="text-xs font-medium text-secondary-foreground flex-1">{office.name}</span>
                 <span className="text-xs font-bold text-foreground">${ppFee.toLocaleString()}</span>

@@ -18,11 +18,11 @@ interface AppHeaderProps {
   pathname: string
   title?: string
   sub?: string
-  officeKey?: string
   officeName?: string
+  officeColor?: string | null
 }
 
-export function AppHeader({ pathname, title, sub, officeKey, officeName }: AppHeaderProps) {
+export function AppHeader({ pathname, title, sub, officeName, officeColor }: AppHeaderProps) {
   const [time, setTime] = useState('')
 
   useEffect(() => {
@@ -52,8 +52,8 @@ export function AppHeader({ pathname, title, sub, officeKey, officeName }: AppHe
         </div>
       </div>
       <div className="flex items-center gap-3">
-        {officeKey && officeName && (
-          <OfficePill officeKey={officeKey} officeName={officeName} />
+        {officeName && (
+          <OfficePill officeName={officeName} officeColor={officeColor} />
         )}
         {time && (
           <span className="text-xs text-muted-foreground font-medium">{time}</span>

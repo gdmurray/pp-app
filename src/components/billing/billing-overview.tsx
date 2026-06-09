@@ -6,7 +6,7 @@ import {
 } from 'recharts'
 import { cn } from '@/lib/utils'
 import { colors, chartTheme } from '@/lib/design-tokens'
-import { OFFICE_COLORS } from '@/lib/offices'
+import { resolveOfficeColor } from '@/lib/offices'
 import {
   getBillingMonths, toMonthKey, calcPPFee, calcFirstApptBilling,
   calcSecondApptBilling, monthLabel,
@@ -130,7 +130,7 @@ export function BillingOverview({ allPatients, allBilling, allOffices }: Billing
               key={o.key}
               onClick={() => setOfficeFilter(o.key)}
               className={cn('px-3 py-1.5 text-xs font-semibold transition-colors', officeFilter === o.key ? 'text-white' : 'text-secondary-foreground hover:bg-muted')}
-              style={officeFilter === o.key ? { backgroundColor: OFFICE_COLORS[o.key as keyof typeof OFFICE_COLORS] } : {}}
+              style={officeFilter === o.key ? { backgroundColor: resolveOfficeColor(o) } : {}}
             >
               {o.abbr}
             </button>
@@ -173,7 +173,7 @@ export function BillingOverview({ allPatients, allBilling, allOffices }: Billing
                     dataKey={`${o.key}_pp`}
                     name={`${o.name} PP`}
                     stackId="pp"
-                    fill={OFFICE_COLORS[o.key as keyof typeof OFFICE_COLORS]}
+                    fill={resolveOfficeColor(o)}
                     radius={[3, 3, 0, 0]}
                   />
                 ))
@@ -199,7 +199,7 @@ export function BillingOverview({ allPatients, allBilling, allOffices }: Billing
                     dataKey={`${o.key}_office`}
                     name={`${o.name}`}
                     stackId="office"
-                    fill={OFFICE_COLORS[o.key as keyof typeof OFFICE_COLORS]}
+                    fill={resolveOfficeColor(o)}
                     radius={[3, 3, 0, 0]}
                   />
                 ))
@@ -234,7 +234,7 @@ export function BillingOverview({ allPatients, allBilling, allOffices }: Billing
               const attended = oFields.filter((f) => (f.attendedAppt ?? f.attended) === 'yes').length
               const noShow = oFields.filter((f) => (f.attendedAppt ?? f.attended) === 'no').length
               const pending = oFields.filter((f) => (f.attendedAppt ?? f.attended) === 'pending').length
-              const color = OFFICE_COLORS[office.key as keyof typeof OFFICE_COLORS]
+              const color = resolveOfficeColor(office)
 
               return (
                 <tr key={office.id} className="border-b border-muted hover:bg-pp-hover-subtle">

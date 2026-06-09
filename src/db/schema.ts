@@ -18,7 +18,8 @@ export const offices = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     key: text("key").notNull().unique(), // 'sunset' | 'mountain' | 'crown'
     name: text("name").notNull(),
-    color: text("color").notNull(),
+    // Empty string = auto color from practice name (see resolveOfficeColor)
+    color: text("color").notNull().default(""),
     abbr: text("abbr").notNull(),
     // Full rich profile stored as JSONB (team, treatments, hours, payment, etc.)
     profile: jsonb("profile").$type<OfficeProfile>().notNull().default({}),

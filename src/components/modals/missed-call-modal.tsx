@@ -12,7 +12,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { OFFICES } from '@/lib/offices'
+import { resolveOfficeColor } from '@/lib/offices'
+import type { Office } from '@/lib/patient-utils'
 import { cn } from '@/lib/utils'
 import { logCall } from '@/server/actions/calls'
 import { toast } from 'sonner'
@@ -20,9 +21,10 @@ import { toast } from 'sonner'
 interface MissedCallModalProps {
   open: boolean
   onClose: () => void
+  offices: Office[]
 }
 
-export function MissedCallModal({ open, onClose }: MissedCallModalProps) {
+export function MissedCallModal({ open, onClose, offices }: MissedCallModalProps) {
   const [officeKey, setOfficeKey] = useState('')
   const [voicemail, setVoicemail] = useState<'yes' | 'no' | null>(null)
   const [callbackTime, setCallbackTime] = useState('')
@@ -82,28 +84,31 @@ export function MissedCallModal({ open, onClose }: MissedCallModalProps) {
               <span className="text-pp-orange mr-1">●</span> Which office?
             </Label>
             <div className="grid grid-cols-3 gap-2">
-              {OFFICES.map((o) => (
-                <button
-                  key={o.key}
-                  type="button"
-                  onClick={() => setOfficeKey(o.key)}
-                  className={cn(
-                    'flex flex-col items-center gap-1 p-3 rounded-lg border-2 text-sm font-semibold transition-all',
-                    officeKey === o.key
-                      ? 'border-current text-white'
-                      : 'border-border text-secondary-foreground hover:border-primary',
-                  )}
-                  style={officeKey === o.key ? { backgroundColor: o.color, borderColor: o.color } : {}}
-                >
-                  <span
-                    className="text-xs font-black px-2 py-1 rounded-md text-white"
-                    style={{ backgroundColor: o.color }}
+              {offices.map((o) => {
+                const color = resolveOfficeColor(o)
+                return (
+                  <button
+                    key={o.key}
+                    type="button"
+                    onClick={() => setOfficeKey(o.key)}
+                    className={cn(
+                      'flex flex-col items-center gap-1 p-3 rounded-lg border-2 text-sm font-semibold transition-all',
+                      officeKey === o.key
+                        ? 'border-current text-white'
+                        : 'border-border text-secondary-foreground hover:border-primary',
+                    )}
+                    style={officeKey === o.key ? { backgroundColor: color, borderColor: color } : {}}
                   >
-                    {o.abbr}
-                  </span>
-                  <span className={officeKey === o.key ? 'text-white' : ''}>{o.name}</span>
-                </button>
-              ))}
+                    <span
+                      className="text-xs font-black px-2 py-1 rounded-md text-white"
+                      style={{ backgroundColor: color }}
+                    >
+                      {o.abbr}
+                    </span>
+                    <span className={officeKey === o.key ? 'text-white' : ''}>{o.name}</span>
+                  </button>
+                )
+              })}
             </div>
           </div>
 

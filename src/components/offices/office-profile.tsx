@@ -8,8 +8,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import { OFFICE_COLORS } from '@/lib/offices'
-import { updateOfficeProfile } from '@/server/actions/offices'
+import { colorFromName, resolveOfficeColor } from '@/lib/offices'
+import { updateOffice } from '@/server/actions/offices'
 import { toast } from 'sonner'
 import type { Office, Patient } from '@/lib/patient-utils'
 import type { OfficeProfile as OP, calls as CallsTable } from '@/db/schema'
@@ -29,8 +29,10 @@ const DAY_LABELS: Record<string, string> = {
 export function OfficeProfile({ office, officePatients, officeCalls }: OfficeProfileProps) {
   const [editMode, setEditMode] = useState(false)
   const [profile, setProfile] = useState((office.profile as OP & Record<string, unknown>) ?? {})
+  const [customColor, setCustomColor] = useState(office.color?.trim() ?? '')
   const [saving, setSaving] = useState(false)
-  const color = OFFICE_COLORS[office.key as keyof typeof OFFICE_COLORS]
+  const displayColor = resolveOfficeColor({ name: office.name, color: customColor || null })
+  const autoColor = colorFromName(office.name)
 
   function setField(key: string, val: unknown) {
     setProfile((p) => ({ ...p, [key]: val }))
@@ -39,7 +41,7 @@ export function OfficeProfile({ office, officePatients, officeCalls }: OfficePro
   async function handleSave() {
     setSaving(true)
     try {
-      await updateOfficeProfile(office.key, profile as OP)
+      await updateOffice(office.key, { profile: profile as OP, color: customColor || null })
       toast.success('Office profile saved.')
       setEditMode(false)
     } catch {
@@ -61,7 +63,7 @@ export function OfficeProfile({ office, officePatients, officeCalls }: OfficePro
         </Link>
         <span className="text-border">/</span>
         <span className="text-sm font-bold text-foreground flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
+          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: displayColor }} />
           {office.name}
         </span>
         <div className="ml-auto flex gap-2">
@@ -70,7 +72,11 @@ export function OfficeProfile({ office, officePatients, officeCalls }: OfficePro
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => { setEditMode(false); setProfile((office.profile as OP & Record<string, unknown>) ?? {}) }}
+                onClick={() => {
+                  setEditMode(false)
+                  setProfile((office.profile as OP & Record<string, unknown>) ?? {})
+                  setCustomColor(office.color?.trim() ?? '')
+                }}
               >
                 <X size={13} className="mr-1" /> Cancel
               </Button>
@@ -96,6 +102,47 @@ export function OfficeProfile({ office, officePatients, officeCalls }: OfficePro
         <div className="col-span-2 space-y-5">
           {/* Identity */}
           <ProfileSection title="Identity & Contact" editMode={editMode}>
+            <div className="mb-4 pb-4 border-b border-border">
+              <Label className="text-xs font-semibold text-muted-foreground">Brand Color</Label>
+              <div className="mt-2 flex items-center gap-3">
+                <span
+                  className="w-8 h-8 rounded-lg border border-border flex-shrink-0"
+                  style={{ backgroundColor: displayColor }}
+                />
+                {editMode ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Input
+                      type="color"
+                      value={customColor || autoColor}
+                      onChange={(e) => setCustomColor(e.target.value)}
+                      className="h-9 w-14 p-1 cursor-pointer"
+                    />
+                    <Input
+                      value={customColor}
+                      onChange={(e) => setCustomColor(e.target.value)}
+                      placeholder={`Auto: ${autoColor}`}
+                      className="h-9 w-36 font-mono text-sm"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCustomColor('')}
+                    >
+                      Use automatic
+                    </Button>
+                  </div>
+                ) : (
+                  <p className="text-sm text-foreground">
+                    {customColor ? (
+                      <span className="font-mono">{customColor}</span>
+                    ) : (
+                      <>Automatic from name <span className="font-mono text-muted-foreground">({autoColor})</span></>
+                    )}
+                  </p>
+                )}
+              </div>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <PF label="Practice Phone" value={profile.practicePhone as string ?? ''} editMode={editMode} onChange={(v) => setField('practicePhone', v)} />
               <PF label="Website" value={profile.website as string ?? ''} editMode={editMode} onChange={(v) => setField('website', v)} />

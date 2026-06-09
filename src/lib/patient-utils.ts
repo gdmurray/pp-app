@@ -1,5 +1,5 @@
 import type { patients, offices, billingReconciliation } from '@/db/schema'
-import { OFFICE_COLORS } from '@/lib/offices'
+import { resolveOfficeColor } from '@/lib/offices'
 import { officeFallbackColor } from '@/lib/design-tokens'
 
 export type Patient = typeof patients.$inferSelect
@@ -35,8 +35,11 @@ export function patientIsNew(p: Patient): boolean {
   return (p.patient as { newPatient?: string })?.newPatient === 'Yes'
 }
 
-export function getOfficeColor(officeKey: string): string {
-  return OFFICE_COLORS[officeKey as keyof typeof OFFICE_COLORS] ?? officeFallbackColor
+export function getOfficeColor(
+  office: Pick<Office, 'name' | 'color'> | null | undefined,
+): string {
+  if (!office) return officeFallbackColor
+  return resolveOfficeColor(office)
 }
 
 export function formatDate(dateStr: string): string {

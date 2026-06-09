@@ -51,12 +51,27 @@ export const colors = {
   /** Edit-mode banner background */
   warningEdit: '#FFF8ED',
 
-  /** Per-office brand colors */
+  /** Legacy per-office keys — prefer officePalette + resolveOfficeColor() */
   office: {
     sunset: '#E05A30',
     mountain: '#2D7A50',
     crown: '#5A4BD1',
   },
+
+  /**
+   * Default palette for offices without a custom color.
+   * Index is chosen via hash(office name) % length.
+   */
+  officePalette: [
+    '#E05A30',
+    '#2D7A50',
+    '#5A4BD1',
+    '#C44D7A',
+    '#D4A017',
+    '#2B6CB0',
+    '#6B46C1',
+    '#0D9488',
+  ],
 } as const
 
 export type DesignColor = (typeof colors)[keyof typeof colors]

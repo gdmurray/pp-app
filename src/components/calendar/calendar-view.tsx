@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { colors } from '@/lib/design-tokens'
-import { OFFICE_COLORS } from '@/lib/offices'
+import { resolveOfficeColor } from '@/lib/offices'
 import {
   patientFullName, patientApptDate, patientIsBooked, getOfficeColor,
   type Patient, type Office,
@@ -69,7 +69,7 @@ export function CalendarView({ allPatients, allCalls, allOffices }: CalendarView
           if (o?.key !== activeOffice) return
         }
         const o = officeMap.get(p.officeId)
-        addEvent(d, patientFullName(p), getOfficeColor(o?.key ?? ''), 'appt')
+        addEvent(d, patientFullName(p), getOfficeColor(o), 'appt')
       })
     } else {
       allPatients.forEach((p) => {
@@ -79,7 +79,7 @@ export function CalendarView({ allPatients, allCalls, allOffices }: CalendarView
           if (o?.key !== activeOffice) return
         }
         const o = officeMap.get(p.officeId)
-        addEvent(d, patientFullName(p), getOfficeColor(o?.key ?? ''), 'call')
+        addEvent(d, patientFullName(p), getOfficeColor(o), 'call')
       })
       allCalls.forEach((c) => {
         const d = c.recordedAt.toString().slice(0, 10)
@@ -162,7 +162,7 @@ export function CalendarView({ allPatients, allCalls, allOffices }: CalendarView
               key={o.key}
               value={o.key}
               className="data-[state=on]:text-white"
-              style={officeFilter === o.key ? { backgroundColor: OFFICE_COLORS[o.key as keyof typeof OFFICE_COLORS], borderColor: OFFICE_COLORS[o.key as keyof typeof OFFICE_COLORS] } : {}}
+              style={officeFilter === o.key ? { backgroundColor: resolveOfficeColor(o), borderColor: resolveOfficeColor(o) } : {}}
             >
               {o.abbr}
             </ToggleGroupItem>
@@ -193,7 +193,7 @@ export function CalendarView({ allPatients, allCalls, allOffices }: CalendarView
       <div className="flex items-center gap-4">
         {allOffices.map((o) => (
           <div key={o.key} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: OFFICE_COLORS[o.key as keyof typeof OFFICE_COLORS] }} />
+            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: resolveOfficeColor(o) }} />
             {o.name}
           </div>
         ))}

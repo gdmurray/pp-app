@@ -5,7 +5,7 @@ import { useState, useMemo } from 'react'
 import { Clock, ChevronRight, CheckCircle2, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { colors } from '@/lib/design-tokens'
-import { OFFICE_COLORS } from '@/lib/offices'
+import { resolveOfficeColor } from '@/lib/offices'
 import {
   getBillingMonths, toMonthKey, monthLabel, parseMonth,
   calcPPFee, calcFirstApptBilling, monthCompletionPercent,
@@ -78,7 +78,7 @@ export function ReconciliationHome({ allPatients, allBilling, allOffices }: Reco
         <h3 className="text-sm font-bold text-foreground">Office Reconciliation Status</h3>
         <div className="grid grid-cols-3 gap-4">
           {allOffices.map((office) => {
-            const color = OFFICE_COLORS[office.key as keyof typeof OFFICE_COLORS]
+            const color = resolveOfficeColor(office)
             const officePatients = allPatients.filter(
               (p) => p.officeId === office.id && patientIsBooked(p),
             )
@@ -216,7 +216,7 @@ export function ReconciliationHome({ allPatients, allBilling, allOffices }: Reco
                   <div key={b.id} className="flex items-center gap-3 p-3 rounded-lg border border-border">
                     <span
                       className="w-2 h-2 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: OFFICE_COLORS[(office?.key ?? '') as keyof typeof OFFICE_COLORS] }}
+                      style={{ backgroundColor: office ? resolveOfficeColor(office) : undefined }}
                     />
                     <span className="text-sm font-semibold text-foreground flex-1">{patientFullName(p)}</span>
                     <span className="text-xs text-muted-foreground">{office?.name}</span>

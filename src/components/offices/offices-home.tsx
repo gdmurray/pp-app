@@ -1,9 +1,23 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import { Building2, ChevronRight, Users, Phone } from 'lucide-react'
-import { OFFICE_COLORS } from '@/lib/offices'
+import { useRouter } from 'next/navigation'
+import { ChevronRight } from 'lucide-react'
+import { resolveOfficeColor } from '@/lib/offices'
+import { createOffice } from '@/server/actions/offices'
 import { patientIsBooked, type Patient, type Office } from '@/lib/patient-utils'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { toast } from 'sonner'
 import type { calls as CallsTable } from '@/db/schema'
 
 interface OfficesHomeProps {
@@ -15,11 +29,40 @@ interface OfficesHomeProps {
 const DAY_LABELS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
 
 export function OfficesHome({ allOffices, allPatients, allCalls }: OfficesHomeProps) {
+  const router = useRouter()
+  const [addOpen, setAddOpen] = useState(false)
+  const [officeName, setOfficeName] = useState('')
+  const [officeColor, setOfficeColor] = useState('')
+  const [creating, setCreating] = useState(false)
+
+  async function handleCreateOffice() {
+    if (!officeName.trim()) {
+      toast.error('Enter a practice name.')
+      return
+    }
+    setCreating(true)
+    try {
+      const office = await createOffice({
+        name: officeName.trim(),
+        color: officeColor.trim() || null,
+      })
+      toast.success(`${office.name} added.`)
+      setAddOpen(false)
+      setOfficeName('')
+      setOfficeColor('')
+      router.push(`/offices/${office.key}`)
+    } catch {
+      toast.error('Failed to create office.')
+    } finally {
+      setCreating(false)
+    }
+  }
+
   return (
     <div className="p-7 space-y-6">
       <div className="grid grid-cols-3 gap-5">
         {allOffices.map((office) => {
-          const color = OFFICE_COLORS[office.key as keyof typeof OFFICE_COLORS]
+          const color = resolveOfficeColor(office)
           const oPatients = allPatients.filter((p) => p.officeId === office.id)
           const oBooked = oPatients.filter(patientIsBooked).length
           const oCalls = allCalls.filter((c) => c.officeId === office.id)
@@ -107,9 +150,66 @@ export function OfficesHome({ allOffices, allPatients, allCalls }: OfficesHomePr
         })}
       </div>
 
-      <div className="text-center p-5 text-sm text-muted-foreground border border-dashed border-border rounded-xl">
-        + Add Office — coming soon
-      </div>
+      <button
+        type="button"
+        onClick={() => setAddOpen(true)}
+        className="w-full text-center p-5 text-sm text-muted-foreground border border-dashed border-border rounded-xl hover:border-primary hover:text-primary transition-colors"
+      >
+        + Add Office
+      </button>
+
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Office</DialogTitle>
+            <DialogDescription>
+              A brand color is assigned automatically from the practice name. You can override it later on the office profile.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="new-office-name">Practice name</Label>
+              <Input
+                id="new-office-name"
+                value={officeName}
+                onChange={(e) => setOfficeName(e.target.value)}
+                placeholder="e.g. Riverside Dental"
+                className="h-10"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="new-office-color">Brand color (optional)</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="new-office-color"
+                  type="color"
+                  value={officeColor || '#3A86C8'}
+                  onChange={(e) => setOfficeColor(e.target.value)}
+                  className="h-10 w-14 p-1 cursor-pointer"
+                />
+                <Input
+                  value={officeColor}
+                  onChange={(e) => setOfficeColor(e.target.value)}
+                  placeholder="Leave blank for automatic"
+                  className="h-10 font-mono text-sm"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setAddOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreateOffice}
+                disabled={creating}
+                className="bg-primary hover:bg-pp-blue-dark text-white"
+              >
+                {creating ? 'Creating…' : 'Create Office'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

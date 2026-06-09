@@ -8,7 +8,7 @@ import 'dotenv/config'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import * as schema from './schema'
-import { OFFICE_COLORS } from '@/lib/offices'
+import { colors } from '@/lib/design-tokens'
 import type {
   OfficeProfile, PatientInfo, DiscoveryInfo, BookingInfo,
   FinancialInfo, MedicalInfo, ConclusionInfo, CallNotes
@@ -42,7 +42,7 @@ const OFFICE_SEEDS: Array<{
   key: string; name: string; color: string; abbr: string; profile: OfficeProfile
 }> = [
   {
-    key: 'sunset', name: 'Sunset Dental', color: OFFICE_COLORS.sunset, abbr: 'SD',
+    key: 'sunset', name: 'Sunset Dental', color: colors.office.sunset, abbr: 'SD',
     profile: {
       principleLastName: 'Martinez', principleFirstName: 'Sarah', principlePreferredName: 'Dr. Sarah',
       address: '4520 E. Colfax Ave, Suite 300', city: 'Denver', province: 'CO', postal: '80220',
@@ -72,7 +72,7 @@ const OFFICE_SEEDS: Array<{
     },
   },
   {
-    key: 'mountain', name: 'Mountain Dental', color: OFFICE_COLORS.mountain, abbr: 'MD',
+    key: 'mountain', name: 'Mountain Dental', color: colors.office.mountain, abbr: 'MD',
     profile: {
       principleLastName: 'Chen', principleFirstName: 'James', principlePreferredName: 'Dr. James',
       address: '2150 Canyon Blvd, Suite 100', city: 'Boulder', province: 'CO', postal: '80302',
@@ -102,7 +102,7 @@ const OFFICE_SEEDS: Array<{
     },
   },
   {
-    key: 'crown', name: 'Crown Dental', color: OFFICE_COLORS.crown, abbr: 'CD',
+    key: 'crown', name: 'Crown Dental', color: colors.office.crown, abbr: 'CD',
     profile: {
       principleLastName: 'Thornton', principleFirstName: 'Emily', principlePreferredName: 'Dr. Emily',
       address: '1840 N. Nevada Ave, Suite 210', city: 'Colorado Springs', province: 'CO', postal: '80907',

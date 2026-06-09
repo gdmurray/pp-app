@@ -7,7 +7,7 @@ import {
 } from 'recharts'
 import { cn } from '@/lib/utils'
 import { colors, chartTheme, officeFallbackColor } from '@/lib/design-tokens'
-import { OFFICE_COLORS } from '@/lib/offices'
+import { resolveOfficeColor } from '@/lib/offices'
 import {
   patientIsBooked, patientIsNew, patientApptDate,
   type Patient, type Office,
@@ -108,7 +108,7 @@ export function InsightsDashboard({ allPatients, allCalls, allOffices }: Insight
       const oPatients = filteredPatients.filter((p) => p.officeId === o.id)
       const oBooked = oPatients.filter(patientIsBooked)
       const rate = oPatients.length > 0 ? Math.round((oBooked.length / oPatients.length) * 100) : 0
-      return { name: o.name, key: o.key, value: oPatients.length, rate }
+      return { name: o.name, key: o.key, color: resolveOfficeColor(o), value: oPatients.length, rate }
     })
   }, [filteredPatients, allOffices])
 
@@ -164,7 +164,7 @@ export function InsightsDashboard({ allPatients, allCalls, allOffices }: Insight
               key={o.key}
               onClick={() => setOfficeFilter(o.key)}
               className={cn('px-3 py-1.5 text-xs font-semibold transition-colors', officeFilter === o.key ? 'text-white' : 'text-secondary-foreground hover:bg-muted')}
-              style={officeFilter === o.key ? { backgroundColor: OFFICE_COLORS[o.key as keyof typeof OFFICE_COLORS] } : {}}
+              style={officeFilter === o.key ? { backgroundColor: resolveOfficeColor(o) } : {}}
             >
               {o.abbr}
             </button>
@@ -237,7 +237,7 @@ export function InsightsDashboard({ allPatients, allCalls, allOffices }: Insight
               <Tooltip />
               <Bar dataKey="value" name="Patients" radius={[3, 3, 0, 0]}>
                 {officeBreakdown.map((entry, i) => (
-                  <Cell key={i} fill={OFFICE_COLORS[entry.key as keyof typeof OFFICE_COLORS]} />
+                  <Cell key={i} fill={entry.color} />
                 ))}
               </Bar>
             </BarChart>
@@ -279,11 +279,11 @@ export function InsightsDashboard({ allPatients, allCalls, allOffices }: Insight
           <span className="text-sm font-bold text-white">Booking Rate by Office</span>
         </div>
         <div className="p-5 space-y-4">
-          {officeBreakdown.map(({ name, key, value, rate }) => (
+          {officeBreakdown.map(({ name, key, color, value, rate }) => (
             <div key={key} className="flex items-center gap-4">
               <span
                 className="w-2 h-2 rounded-full flex-shrink-0"
-                style={{ backgroundColor: OFFICE_COLORS[key as keyof typeof OFFICE_COLORS] }}
+                style={{ backgroundColor: color }}
               />
               <span className="text-sm font-semibold text-foreground w-36">{name}</span>
               <div className="flex-1 h-3 bg-accent rounded-full overflow-hidden">
@@ -291,7 +291,7 @@ export function InsightsDashboard({ allPatients, allCalls, allOffices }: Insight
                   className="h-full rounded-full"
                   style={{
                     width: `${rate}%`,
-                    backgroundColor: OFFICE_COLORS[key as keyof typeof OFFICE_COLORS],
+                    backgroundColor: color,
                   }}
                 />
               </div>

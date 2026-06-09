@@ -8,7 +8,7 @@ import {
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { colors } from '@/lib/design-tokens'
-import { OFFICE_COLORS } from '@/lib/offices'
+import { resolveOfficeColor } from '@/lib/offices'
 import {
   getBillingMonths, toMonthKey, monthLabel, parseMonth,
   calcPPFee, calcFirstApptBilling, calcSecondApptBilling,
@@ -42,7 +42,7 @@ export function ReconciliationDetail({ office, allPatients, allBilling, allCalls
   const [monthIdx, setMonthIdx] = useState(0)
   const selectedMonth = months[monthIdx]
   const selectedMonthKey = toMonthKey(selectedMonth)
-  const color = OFFICE_COLORS[office.key as keyof typeof OFFICE_COLORS]
+  const color = resolveOfficeColor(office)
 
   // Build reconciliation data for selected month
   const monthData = useMemo(() => {

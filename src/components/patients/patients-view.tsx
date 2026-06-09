@@ -15,7 +15,7 @@ import { Search, LayoutGrid, Table2, ArrowUpDown, Pencil, Trash2, Eye } from 'lu
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { OFFICE_COLORS, OFFICE_NAMES } from '@/lib/offices'
+import { resolveOfficeColor } from '@/lib/offices'
 import {
   patientFullName, patientIsBooked, patientApptDate,
   patientPhone, patientEmail, patientIsNew, formatDate, getOfficeColor,
@@ -93,7 +93,7 @@ export function PatientsView({ allPatients, allOffices }: PatientsViewProps) {
         cell: ({ row }) => {
           const p = row.original
           const office = officeMap.get(p.officeId)
-          const color = getOfficeColor(office?.key ?? '')
+          const color = getOfficeColor(office)
           return (
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
@@ -257,7 +257,7 @@ export function PatientsView({ allPatients, allOffices }: PatientsViewProps) {
               key={o.key}
               onClick={() => setOfficeFilter(o.key)}
               className={cn('px-3 py-1.5 text-xs font-semibold transition-colors', officeFilter === o.key ? 'text-white' : 'text-secondary-foreground hover:bg-muted')}
-              style={officeFilter === o.key ? { backgroundColor: OFFICE_COLORS[o.key as keyof typeof OFFICE_COLORS] } : {}}
+              style={officeFilter === o.key ? { backgroundColor: resolveOfficeColor(o) } : {}}
             >
               {o.abbr}
             </button>
@@ -363,7 +363,7 @@ export function PatientsView({ allPatients, allOffices }: PatientsViewProps) {
           )}
           {filtered.map((p) => {
             const office = officeMap.get(p.officeId)
-            const color = getOfficeColor(office?.key ?? '')
+            const color = getOfficeColor(office)
             const booked = patientIsBooked(p)
             return (
               <div

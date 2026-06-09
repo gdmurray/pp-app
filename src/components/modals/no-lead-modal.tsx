@@ -7,7 +7,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { OFFICES, OFFICE_COLORS } from '@/lib/offices'
+import { resolveOfficeColor } from '@/lib/offices'
 import { cn } from '@/lib/utils'
 import type { Office } from '@/lib/patient-utils'
 
@@ -53,7 +53,7 @@ export function NoLeadModal({ open, onClose, onSubmit, offices, defaultOfficeKey
               <Label className="text-sm font-semibold text-secondary-foreground">Office</Label>
               <div className="grid grid-cols-3 gap-2">
                 {offices.map((o) => {
-                  const color = OFFICE_COLORS[o.key as keyof typeof OFFICE_COLORS]
+                  const color = resolveOfficeColor(o)
                   return (
                     <button
                       key={o.key}

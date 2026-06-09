@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { ChevronLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { colors } from '@/lib/design-tokens'
-import { OFFICE_COLORS } from '@/lib/offices'
+import { resolveOfficeColor } from '@/lib/offices'
 import {
   getBillingMonths, toMonthKey, monthLabel, calcPPFee,
   calcFirstApptBilling, monthCompletionPercent, BILL_START,
@@ -20,7 +20,7 @@ interface ReconciliationFullYearProps {
 
 export function ReconciliationFullYear({ office, allPatients, allBilling }: ReconciliationFullYearProps) {
   const months = useMemo(() => getBillingMonths(), [])
-  const color = OFFICE_COLORS[office.key as keyof typeof OFFICE_COLORS]
+  const color = resolveOfficeColor(office)
 
   const monthRows = useMemo(() => {
     return months.map((m) => {

@@ -18,7 +18,7 @@ interface PatientProfileModalProps {
 }
 
 export function PatientProfileModal({ patient, office, open, onClose, onEdit }: PatientProfileModalProps) {
-  const color = getOfficeColor(office?.key ?? '')
+  const color = getOfficeColor(office)
   const booked = patientIsBooked(patient)
   const disc = patient.discovery as DiscoveryInfo
   const fin = patient.financial as FinancialInfo

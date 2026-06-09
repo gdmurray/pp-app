@@ -1,15 +1,14 @@
 'use client'
 
-import { OFFICE_COLORS } from '@/lib/offices'
-import { officeFallbackColor } from '@/lib/design-tokens'
+import { resolveOfficeColor } from '@/lib/offices'
 
 interface OfficePillProps {
   officeName: string
-  officeKey: string
+  officeColor?: string | null
 }
 
-export function OfficePill({ officeName, officeKey }: OfficePillProps) {
-  const color = OFFICE_COLORS[officeKey as keyof typeof OFFICE_COLORS] ?? officeFallbackColor
+export function OfficePill({ officeName, officeColor }: OfficePillProps) {
+  const color = resolveOfficeColor({ name: officeName, color: officeColor })
 
   return (
     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-white text-sm font-semibold text-foreground">

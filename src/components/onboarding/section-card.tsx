@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, CheckCircle2 } from 'lucide-react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface SectionCardProps {
@@ -9,18 +9,10 @@ interface SectionCardProps {
   title: string
   locked: boolean
   officeColor?: string
-  form: { state: { values: Record<string, unknown> } }
-  fieldKeys: string[]
   children: React.ReactNode
 }
 
-export function SectionCard({
-  number,
-  title,
-  locked,
-  officeColor,
-  children,
-}: SectionCardProps) {
+export function SectionCard({ number, title, locked, officeColor, children }: SectionCardProps) {
   const [expanded, setExpanded] = useState(true)
 
   return (
@@ -33,10 +25,11 @@ export function SectionCard({
       <button
         type="button"
         className="w-full text-left section-card-header px-5 py-3.5 flex items-center gap-3 focus:outline-none"
+        style={officeColor ? { backgroundColor: officeColor } : {}}
         onClick={() => setExpanded((e) => !e)}
         disabled={locked}
       >
-        <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-black text-white flex-shrink-0">
+        <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-black text-white shrink-0">
           {number}
         </span>
         <span className="text-sm font-bold text-white flex-1">{title}</span>
