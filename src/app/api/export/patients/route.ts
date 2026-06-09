@@ -3,17 +3,16 @@ import * as XLSX from 'xlsx'
 import { db } from '@/db'
 import { patients, offices } from '@/db/schema'
 import { desc, eq } from 'drizzle-orm'
-import { createClient } from '@/lib/supabase/server'
+import { isApiAuthenticated } from '@/lib/auth'
 import {
   patientFullName, patientPhone, patientEmail,
   patientIsBooked, patientApptDate, patientApptTime, patientIsNew,
 } from '@/lib/patient-utils'
 
 export async function GET(req: NextRequest) {
-  // Auth check
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!(await isApiAuthenticated())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   const allPatients = await db.select().from(patients).orderBy(desc(patients.recordedAt))
   const allOffices = await db.select().from(offices)

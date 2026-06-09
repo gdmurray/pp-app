@@ -1,17 +1,15 @@
 'use client'
 
-import { Suspense, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { authErrorLoginPath, getAuthHashError, parseAuthHash } from '@/lib/auth-hash'
 
 /**
  * Finishes OAuth (PKCE ?code= or legacy #access_token hash).
  * Must be a client page — hash fragments are never sent to the server.
+ * Avoid useSearchParams here so production doesn't stick on a Suspense fallback.
  */
-function AuthCallbackHandler() {
-  const searchParams = useSearchParams()
-
+export default function AuthCallbackPage() {
   useEffect(() => {
     let cancelled = false
 
@@ -27,7 +25,7 @@ function AuthCallbackHandler() {
       }
 
       const supabase = createClient()
-      const code = searchParams.get('code')
+      const code = new URLSearchParams(window.location.search).get('code')
 
       if (code) {
         const { error } = await supabase.auth.exchangeCodeForSession(code)
@@ -37,7 +35,6 @@ function AuthCallbackHandler() {
         }
       }
 
-      // Implicit / hash flow — browser client parses #access_token from the URL
       const { data: { session }, error } = await supabase.auth.getSession()
       if (!cancelled && session && !error) {
         window.location.replace('/')
@@ -53,25 +50,11 @@ function AuthCallbackHandler() {
     return () => {
       cancelled = true
     }
-  }, [searchParams])
+  }, [])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-accent">
       <p className="text-sm text-muted-foreground">Signing you in…</p>
     </div>
-  )
-}
-
-export default function AuthCallbackPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center bg-accent">
-          <p className="text-sm text-muted-foreground">Signing you in…</p>
-        </div>
-      }
-    >
-      <AuthCallbackHandler />
-    </Suspense>
   )
 }

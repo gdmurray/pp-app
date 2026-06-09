@@ -3,15 +3,15 @@ import * as XLSX from 'xlsx'
 import { db } from '@/db'
 import { patients, offices, billingReconciliation } from '@/db/schema'
 import { desc, eq } from 'drizzle-orm'
-import { createClient } from '@/lib/supabase/server'
+import { isApiAuthenticated } from '@/lib/auth'
 import { patientFullName, patientApptDate } from '@/lib/patient-utils'
 import { monthLabel, parseMonth } from '@/lib/billing/billing-logic'
 import type { BillingFields } from '@/db/schema'
 
 export async function GET(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!(await isApiAuthenticated())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   const { searchParams } = new URL(req.url)
   const officeId = searchParams.get('office')
