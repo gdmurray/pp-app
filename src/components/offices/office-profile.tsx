@@ -2,13 +2,15 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { ChevronLeft, Pencil, Check, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import { colorFromName, resolveOfficeColor } from '@/lib/offices'
+import { colorFromName, generateOfficeAbbr, resolveOfficeColor } from '@/lib/offices'
 import { updateOffice } from '@/server/actions/offices'
 import { toast } from 'sonner'
 import type { Office, Patient } from '@/lib/patient-utils'
@@ -25,25 +27,54 @@ const DAY_LABELS: Record<string, string> = {
   mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday',
   fri: 'Friday', sat: 'Saturday', sun: 'Sunday',
 }
+const INS_ITEMS = [
+  ['billDirectly', 'Bill insurance directly'],
+  ['medicaidMedicare', 'State Medicaid / Federal Medicare PPO'],
+  ['copaymentRequired', 'Co-payment required at appointment'],
+  ['contactBeforeAppt', 'Contact patient before appt for insurance info'],
+] as const
+type TeamMember = { position: string; name: string; notes: string }
 
 export function OfficeProfile({ office, officePatients, officeCalls }: OfficeProfileProps) {
+  const router = useRouter()
   const [editMode, setEditMode] = useState(false)
   const [profile, setProfile] = useState((office.profile as OP & Record<string, unknown>) ?? {})
+  const [officeName, setOfficeName] = useState(office.name)
   const [customColor, setCustomColor] = useState(office.color?.trim() ?? '')
   const [saving, setSaving] = useState(false)
-  const displayColor = resolveOfficeColor({ name: office.name, color: customColor || null })
-  const autoColor = colorFromName(office.name)
+  const displayColor = resolveOfficeColor({ name: officeName, color: customColor || null })
+  const autoColor = colorFromName(officeName)
 
   function setField(key: string, val: unknown) {
     setProfile((p) => ({ ...p, [key]: val }))
   }
 
+  function setInsuranceField(key: string, val: boolean | string) {
+    setProfile((p) => ({
+      ...p,
+      insurance: { ...((p.insurance as Record<string, unknown>) ?? {}), [key]: val },
+    }))
+  }
+
+  function setTeamMember(index: number, field: keyof TeamMember, val: string) {
+    setProfile((p) => {
+      const members = [...((p.team as TeamMember[]) ?? [])]
+      members[index] = { ...members[index], [field]: val }
+      return { ...p, team: members }
+    })
+  }
+
   async function handleSave() {
     setSaving(true)
     try {
-      await updateOffice(office.key, { profile: profile as OP, color: customColor || null })
+      await updateOffice(office.id, {
+        name: officeName,
+        profile: profile as OP,
+        color: customColor || null,
+      })
       toast.success('Office profile saved.')
       setEditMode(false)
+      router.refresh()
     } catch {
       toast.error('Failed to save office profile.')
     } finally {
@@ -64,7 +95,7 @@ export function OfficeProfile({ office, officePatients, officeCalls }: OfficePro
         <span className="text-border">/</span>
         <span className="text-sm font-bold text-foreground flex items-center gap-2">
           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: displayColor }} />
-          {office.name}
+          {officeName}
         </span>
         <div className="ml-auto flex gap-2">
           {editMode ? (
@@ -75,6 +106,7 @@ export function OfficeProfile({ office, officePatients, officeCalls }: OfficePro
                 onClick={() => {
                   setEditMode(false)
                   setProfile((office.profile as OP & Record<string, unknown>) ?? {})
+                  setOfficeName(office.name)
                   setCustomColor(office.color?.trim() ?? '')
                 }}
               >
@@ -144,6 +176,13 @@ export function OfficeProfile({ office, officePatients, officeCalls }: OfficePro
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
+              <PF label="Practice Name" value={officeName} editMode={editMode} onChange={setOfficeName} />
+              <PF
+                label="Abbreviation"
+                value={editMode ? generateOfficeAbbr(officeName) : office.abbr}
+                editMode={false}
+                onChange={() => {}}
+              />
               <PF label="Practice Phone" value={profile.practicePhone as string ?? ''} editMode={editMode} onChange={(v) => setField('practicePhone', v)} />
               <PF label="Website" value={profile.website as string ?? ''} editMode={editMode} onChange={(v) => setField('website', v)} />
               <PF label="Practice Email" value={profile.practiceEmail as string ?? ''} editMode={editMode} onChange={(v) => setField('practiceEmail', v)} />
@@ -219,16 +258,39 @@ export function OfficeProfile({ office, officePatients, officeCalls }: OfficePro
           </div>
 
           {/* Team */}
-          <ProfileSection title="Team" editMode={false}>
+          <ProfileSection title="Team" editMode={editMode}>
             <div className="space-y-3">
               {team.length === 0 && <p className="text-xs text-muted-foreground italic">No team members listed.</p>}
-              {team.map((m, i) => (
-                <div key={i} className="border border-border rounded-lg p-3">
-                  <p className="text-xs font-bold text-foreground">{m.name}</p>
-                  <p className="text-[10.5px] text-muted-foreground mb-1">{m.position}</p>
-                  {m.notes && <p className="text-xs text-secondary-foreground leading-relaxed">{m.notes}</p>}
-                </div>
-              ))}
+              {team.map((m, i) =>
+                editMode ? (
+                  <div key={i} className="border border-border rounded-lg p-3 space-y-2">
+                    <Input
+                      value={m.position}
+                      placeholder="Position"
+                      className="h-8 text-xs"
+                      onChange={(e) => setTeamMember(i, 'position', e.target.value)}
+                    />
+                    <Input
+                      value={m.name}
+                      placeholder="Full name"
+                      className="h-8 text-sm"
+                      onChange={(e) => setTeamMember(i, 'name', e.target.value)}
+                    />
+                    <Input
+                      value={m.notes}
+                      placeholder="Specialty / notes"
+                      className="h-8 text-xs"
+                      onChange={(e) => setTeamMember(i, 'notes', e.target.value)}
+                    />
+                  </div>
+                ) : (
+                  <div key={i} className="border border-border rounded-lg p-3">
+                    <p className="text-xs font-bold text-foreground">{m.name || '—'}</p>
+                    <p className="text-[10.5px] text-muted-foreground mb-1">{m.position || '—'}</p>
+                    {m.notes && <p className="text-xs text-secondary-foreground leading-relaxed">{m.notes}</p>}
+                  </div>
+                ),
+              )}
             </div>
           </ProfileSection>
 
@@ -236,7 +298,30 @@ export function OfficeProfile({ office, officePatients, officeCalls }: OfficePro
           <ProfileSection title="Insurance" editMode={editMode}>
             {(() => {
               const ins = (profile.insurance as Record<string, unknown>) ?? {}
-              return (
+              return editMode ? (
+                <div className="space-y-3">
+                  {INS_ITEMS.map(([key, label]) => (
+                    <label key={key} className="flex items-start gap-2.5 cursor-pointer">
+                      <Checkbox
+                        checked={!!ins[key]}
+                        onCheckedChange={(checked) => setInsuranceField(key, checked === true)}
+                        className="mt-0.5 data-[state=checked]:bg-pp-success data-[state=checked]:border-pp-success"
+                      />
+                      <span className="text-xs text-secondary-foreground leading-snug">{label}</span>
+                    </label>
+                  ))}
+                  <div className="space-y-1 pt-1">
+                    <Label className="text-xs font-semibold text-muted-foreground">Insurance Notes</Label>
+                    <Textarea
+                      rows={3}
+                      value={String(ins.notes ?? '')}
+                      placeholder="e.g. PPO only, no HMO"
+                      onChange={(e) => setInsuranceField('notes', e.target.value)}
+                      className="resize-none text-xs"
+                    />
+                  </div>
+                </div>
+              ) : (
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground text-xs">Bills directly</span>

@@ -14,11 +14,11 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { searchParams } = new URL(req.url)
-  const officeKey = searchParams.get('office')
+  const officeId = searchParams.get('office')
   const month = searchParams.get('month') // e.g. '2026-06-01'
 
   const allOffices = await db.select().from(offices)
-  const targetOffice = officeKey ? allOffices.find((o) => o.key === officeKey) : null
+  const targetOffice = officeId ? allOffices.find((o) => o.id === officeId) : null
 
   const billingQuery = db.select().from(billingReconciliation)
   const allBilling = await billingQuery
@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
   const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })
   const filename = [
     'reconciliation',
-    officeKey,
+    officeId,
     month,
     new Date().toISOString().slice(0, 10),
   ].filter(Boolean).join('-') + '.xlsx'

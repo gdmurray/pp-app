@@ -1,28 +1,28 @@
 'use server'
 
 import { db } from '@/db'
-import { billingReconciliation, patients, offices } from '@/db/schema'
-import { eq, and } from 'drizzle-orm'
+import { billingReconciliation, offices } from '@/db/schema'
+import { eq } from 'drizzle-orm'
 import type { BillingFields } from '@/db/schema'
 import { revalidatePath } from 'next/cache'
 
 export async function upsertBillingRecord({
   patientId,
-  officeKey,
+  officeId,
   reconciliationMonth,
   fields,
 }: {
   patientId: string
-  officeKey: string
+  officeId: string
   reconciliationMonth: string
   fields: BillingFields
 }) {
   const [office] = await db
     .select({ id: offices.id })
     .from(offices)
-    .where(eq(offices.key, officeKey))
+    .where(eq(offices.id, officeId))
     .limit(1)
-  if (!office) throw new Error(`Office not found: ${officeKey}`)
+  if (!office) throw new Error(`Office not found: ${officeId}`)
 
   await db
     .insert(billingReconciliation)

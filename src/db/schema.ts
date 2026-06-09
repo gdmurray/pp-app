@@ -16,7 +16,7 @@ export const offices = pgTable(
   "offices",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    key: text("key").notNull().unique(), // 'sunset' | 'mountain' | 'crown'
+    key: text("key").notNull().unique(), // slug for legacy refs; routes use id
     name: text("name").notNull(),
     // Empty string = auto color from practice name (see resolveOfficeColor)
     color: text("color").notNull().default(""),

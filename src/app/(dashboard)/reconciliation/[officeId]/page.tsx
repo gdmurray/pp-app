@@ -8,8 +8,8 @@ import { eq, desc } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import { Skeleton } from '@/components/ui/skeleton'
 
-async function ReconciliationDetailContent({ officeKey }: { officeKey: string }) {
-  const [office] = await db.select().from(offices).where(eq(offices.key, officeKey))
+async function ReconciliationDetailContent({ officeId }: { officeId: string }) {
+  const [office] = await db.select().from(offices).where(eq(offices.id, officeId))
   if (!office) notFound()
 
   const [allPatients, allBilling, allCalls] = await Promise.all([
@@ -23,12 +23,12 @@ async function ReconciliationDetailContent({ officeKey }: { officeKey: string })
 export default async function ReconciliationDetailPage({
   params,
 }: {
-  params: Promise<{ officeKey: string }>
+  params: Promise<{ officeId: string }>
 }) {
-  const { officeKey } = await params
+  const { officeId } = await params
   return (
     <Suspense fallback={<div className="p-7"><Skeleton className="h-[600px] rounded-xl" /></div>}>
-      <ReconciliationDetailContent officeKey={officeKey} />
+      <ReconciliationDetailContent officeId={officeId} />
     </Suspense>
   )
 }

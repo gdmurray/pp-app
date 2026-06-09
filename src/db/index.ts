@@ -8,7 +8,7 @@ const client = postgres(process.env.DATABASE_URL!, {
   prepare: false, // Required for Supabase Transaction Mode pooler
   // In production (Vercel) keep max:1 for serverless safety.
   // In dev the process is long-lived so allow parallel queries.
-  max: process.env.NODE_ENV === 'production' ? 1 : 10,
+  max: process.env.NODE_ENV === "production" ? 1 : 10,
   connect_timeout: 10, // fail fast instead of hanging for 75s
   idle_timeout: 20,
 });

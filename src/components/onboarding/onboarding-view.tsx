@@ -30,7 +30,7 @@ interface OnboardingViewProps {
 
 export function OnboardingView({ offices, editPatientId }: OnboardingViewProps) {
   const router = useRouter()
-  const [selectedOfficeKey, setSelectedOfficeKey] = useState('')
+  const [selectedOfficeId, setSelectedOfficeId] = useState('')
   const [submitOpen, setSubmitOpen] = useState(false)
   const [noLeadOpen, setNoLeadOpen] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -50,7 +50,7 @@ export function OnboardingView({ offices, editPatientId }: OnboardingViewProps) 
       if (!p) return
       setEditMode(true)
       const office = offices.find((o) => o.id === p.officeId)
-      if (office) setSelectedOfficeKey(office.key)
+      if (office) setSelectedOfficeId(office.id)
       form.reset({
         patient: p.patient ?? {},
         discovery: p.discovery ?? {},
@@ -67,14 +67,14 @@ export function OnboardingView({ offices, editPatientId }: OnboardingViewProps) 
 
   async function handleSave() {
     const values = form.state.values
-    if (!selectedOfficeKey) { toast.error('Please select an office first.'); return }
+    if (!selectedOfficeId) { toast.error('Please select an office first.'); return }
     setSaving(true)
     try {
-      await savePatient({ officeKey: selectedOfficeKey, ...values }, editPatientId)
+      await savePatient({ officeId: selectedOfficeId, ...values }, editPatientId)
       toast.success(editMode ? 'Patient record updated.' : 'Patient saved successfully.')
       setSubmitOpen(false)
       form.reset(DEFAULT_VALUES)
-      setSelectedOfficeKey('')
+      setSelectedOfficeId('')
       setEditMode(false)
       router.push('/patients')
     } catch {
@@ -84,15 +84,15 @@ export function OnboardingView({ offices, editPatientId }: OnboardingViewProps) 
     }
   }
 
-  async function handleNoLead(reason: string, officeKeyOverride?: string) {
-    const oKey = officeKeyOverride ?? selectedOfficeKey
-    if (!oKey) { toast.error('Please select an office first.'); return }
+  async function handleNoLead(reason: string, officeIdOverride?: string) {
+    const oId = officeIdOverride ?? selectedOfficeId
+    if (!oId) { toast.error('Please select an office first.'); return }
     try {
-      await logCall({ type: 'no_lead', officeKey: oKey, payload: { notes: reason } })
+      await logCall({ type: 'no_lead', officeId: oId, payload: { notes: reason } })
       toast.success('No-lead call logged.')
       setNoLeadOpen(false)
       form.reset(DEFAULT_VALUES)
-      setSelectedOfficeKey('')
+      setSelectedOfficeId('')
     } catch {
       toast.error('Failed to log no-lead call.')
     }
@@ -100,13 +100,13 @@ export function OnboardingView({ offices, editPatientId }: OnboardingViewProps) 
 
   function handleClear() {
     form.reset(DEFAULT_VALUES)
-    setSelectedOfficeKey('')
+    setSelectedOfficeId('')
     setEditMode(false)
   }
 
-  const selectedOffice = offices.find((o) => o.key === selectedOfficeKey)
+  const selectedOffice = offices.find((o) => o.id === selectedOfficeId)
   const officeColor = selectedOffice ? resolveOfficeColor(selectedOffice) : undefined
-  const locked = !selectedOfficeKey
+  const locked = !selectedOfficeId
 
   return (
     <form.AppForm>
@@ -141,12 +141,12 @@ export function OnboardingView({ offices, editPatientId }: OnboardingViewProps) 
               <div className="p-5 grid grid-cols-3 gap-3">
                 {offices.map((o) => {
                   const color = resolveOfficeColor(o)
-                  const selected = selectedOfficeKey === o.key
+                  const selected = selectedOfficeId === o.id
                   return (
                     <button
-                      key={o.key}
+                      key={o.id}
                       type="button"
-                      onClick={() => setSelectedOfficeKey(o.key)}
+                      onClick={() => setSelectedOfficeId(o.id)}
                       className={cn(
                         'relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all font-semibold',
                         selected
@@ -231,7 +231,7 @@ export function OnboardingView({ offices, editPatientId }: OnboardingViewProps) 
                 size="sm"
                 disabled={locked}
                 onClick={() => {
-                  if (!selectedOfficeKey) { toast.error('Please select an office first.'); return }
+                  if (!selectedOfficeId) { toast.error('Please select an office first.'); return }
                   form.handleSubmit()
                 }}
                 className="bg-primary hover:bg-pp-blue-dark text-white font-semibold px-6"
@@ -271,7 +271,7 @@ export function OnboardingView({ offices, editPatientId }: OnboardingViewProps) 
         onClose={() => setNoLeadOpen(false)}
         onSubmit={handleNoLead}
         offices={offices}
-        defaultOfficeKey={selectedOfficeKey}
+        defaultOfficeId={selectedOfficeId}
       />
     </form.AppForm>
   )

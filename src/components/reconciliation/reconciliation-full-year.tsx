@@ -73,7 +73,7 @@ export function ReconciliationFullYear({ office, allPatients, allBilling }: Reco
           <ChevronLeft size={14} /> Reconciliation
         </Link>
         <span className="text-border">/</span>
-        <Link href={`/reconciliation/${office.key}`} className="text-sm text-primary hover:underline flex items-center gap-1">
+        <Link href={`/reconciliation/${office.id}`} className="text-sm text-primary hover:underline flex items-center gap-1">
           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
           {office.name}
         </Link>
@@ -123,7 +123,7 @@ export function ReconciliationFullYear({ office, allPatients, allBilling }: Reco
                 >
                   <td className="px-4 py-3">
                     <Link
-                      href={`/reconciliation/${office.key}?month=${r.mKey}`}
+                      href={`/reconciliation/${office.id}?month=${r.mKey}`}
                       className="text-sm font-semibold text-primary hover:underline"
                     >
                       {monthLabel(r.month)}

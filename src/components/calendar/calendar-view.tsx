@@ -66,7 +66,7 @@ export function CalendarView({ allPatients, allCalls, allOffices }: CalendarView
         if (!d) return
         if (activeOffice) {
           const o = officeMap.get(p.officeId)
-          if (o?.key !== activeOffice) return
+          if (o?.id !== activeOffice) return
         }
         const o = officeMap.get(p.officeId)
         addEvent(d, patientFullName(p), getOfficeColor(o), 'appt')
@@ -76,7 +76,7 @@ export function CalendarView({ allPatients, allCalls, allOffices }: CalendarView
         const d = p.recordedAt.toString().slice(0, 10)
         if (activeOffice) {
           const o = officeMap.get(p.officeId)
-          if (o?.key !== activeOffice) return
+          if (o?.id !== activeOffice) return
         }
         const o = officeMap.get(p.officeId)
         addEvent(d, patientFullName(p), getOfficeColor(o), 'call')
@@ -85,7 +85,7 @@ export function CalendarView({ allPatients, allCalls, allOffices }: CalendarView
         const d = c.recordedAt.toString().slice(0, 10)
         if (activeOffice) {
           const o = officeMap.get(c.officeId)
-          if (o?.key !== activeOffice) return
+          if (o?.id !== activeOffice) return
         }
         const label = c.type === 'missed' ? 'Missed Call' : 'No Lead'
         addEvent(d, label, c.type === 'missed' ? colors.destructive : colors.warning, c.type)
@@ -159,10 +159,10 @@ export function CalendarView({ allPatients, allCalls, allOffices }: CalendarView
           </ToggleGroupItem>
           {allOffices.map((o) => (
             <ToggleGroupItem
-              key={o.key}
-              value={o.key}
+              key={o.id}
+              value={o.id}
               className="data-[state=on]:text-white"
-              style={officeFilter === o.key ? { backgroundColor: resolveOfficeColor(o), borderColor: resolveOfficeColor(o) } : {}}
+              style={officeFilter === o.id ? { backgroundColor: resolveOfficeColor(o), borderColor: resolveOfficeColor(o) } : {}}
             >
               {o.abbr}
             </ToggleGroupItem>
@@ -192,7 +192,7 @@ export function CalendarView({ allPatients, allCalls, allOffices }: CalendarView
       {/* Legend */}
       <div className="flex items-center gap-4">
         {allOffices.map((o) => (
-          <div key={o.key} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <div key={o.id} className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: resolveOfficeColor(o) }} />
             {o.name}
           </div>

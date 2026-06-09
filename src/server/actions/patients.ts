@@ -10,7 +10,7 @@ import type {
 import { revalidatePath } from 'next/cache'
 
 export type PatientFormData = {
-  officeKey: string
+  officeId: string
   patient: PatientInfo
   discovery: DiscoveryInfo
   booking: BookingInfo
@@ -22,8 +22,8 @@ export type PatientFormData = {
 }
 
 export async function savePatient(data: PatientFormData, existingId?: string) {
-  const [office] = await db.select({ id: offices.id }).from(offices).where(eq(offices.key, data.officeKey)).limit(1)
-  if (!office) throw new Error(`Office not found: ${data.officeKey}`)
+  const [office] = await db.select({ id: offices.id }).from(offices).where(eq(offices.id, data.officeId)).limit(1)
+  if (!office) throw new Error(`Office not found: ${data.officeId}`)
 
   if (existingId) {
     await db

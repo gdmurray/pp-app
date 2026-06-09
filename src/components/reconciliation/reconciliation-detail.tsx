@@ -88,7 +88,7 @@ export function ReconciliationDetail({ office, allPatients, allBilling, allCalls
       try {
         await upsertBillingRecord({
           patientId,
-          officeKey: office.key,
+          officeId: office.id,
           reconciliationMonth: selectedMonthKey,
           fields: newFields,
         })
@@ -96,7 +96,7 @@ export function ReconciliationDetail({ office, allPatients, allBilling, allCalls
         toast.error('Failed to save reconciliation record.')
       }
     },
-    [monthData, office.key, selectedMonthKey],
+    [monthData, office.id, selectedMonthKey],
   )
 
   const columns = useMemo(
@@ -290,7 +290,7 @@ export function ReconciliationDetail({ office, allPatients, allBilling, allCalls
           <button onClick={() => setMonthIdx((i) => Math.max(i - 1, 0))} disabled={monthIdx === 0} className="p-1.5 rounded hover:bg-accent disabled:opacity-40">
             <ChevronRight size={14} className="text-secondary-foreground" />
           </button>
-          <Link href={`/reconciliation/${office.key}/year`} className="ml-2 text-xs font-semibold text-primary border border-primary px-3 py-1.5 rounded-lg hover:bg-accent">
+          <Link href={`/reconciliation/${office.id}/year`} className="ml-2 text-xs font-semibold text-primary border border-primary px-3 py-1.5 rounded-lg hover:bg-accent">
             Full Year
           </Link>
         </div>

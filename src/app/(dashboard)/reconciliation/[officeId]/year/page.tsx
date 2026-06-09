@@ -5,8 +5,8 @@ import { patients, billingReconciliation, offices } from '@/db/schema'
 import { eq, desc } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 
-async function getData(officeKey: string) {
-  const [office] = await db.select().from(offices).where(eq(offices.key, officeKey))
+async function getData(officeId: string) {
+  const [office] = await db.select().from(offices).where(eq(offices.id, officeId))
   if (!office) notFound()
 
   const [allPatients, allBilling] = await Promise.all([
@@ -19,9 +19,9 @@ async function getData(officeKey: string) {
 export default async function ReconciliationYearPage({
   params,
 }: {
-  params: Promise<{ officeKey: string }>
+  params: Promise<{ officeId: string }>
 }) {
-  const { officeKey } = await params
-  const data = await getData(officeKey)
+  const { officeId } = await params
+  const data = await getData(officeId)
   return <ReconciliationFullYear {...data} />
 }

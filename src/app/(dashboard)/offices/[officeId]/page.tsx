@@ -8,8 +8,8 @@ import { eq, desc } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import { Skeleton } from '@/components/ui/skeleton'
 
-async function OfficeProfileContent({ officeKey }: { officeKey: string }) {
-  const [office] = await db.select().from(offices).where(eq(offices.key, officeKey))
+async function OfficeProfileContent({ officeId }: { officeId: string }) {
+  const [office] = await db.select().from(offices).where(eq(offices.id, officeId))
   if (!office) notFound()
 
   const [officePatients, officeCalls] = await Promise.all([
@@ -22,12 +22,12 @@ async function OfficeProfileContent({ officeKey }: { officeKey: string }) {
 export default async function OfficeProfilePage({
   params,
 }: {
-  params: Promise<{ officeKey: string }>
+  params: Promise<{ officeId: string }>
 }) {
-  const { officeKey } = await params
+  const { officeId } = await params
   return (
     <Suspense fallback={<div className="p-7 space-y-4"><Skeleton className="h-24 rounded-xl" /><Skeleton className="h-64 rounded-xl" /></div>}>
-      <OfficeProfileContent officeKey={officeKey} />
+      <OfficeProfileContent officeId={officeId} />
     </Suspense>
   )
 }

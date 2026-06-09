@@ -6,14 +6,13 @@ import { eq } from 'drizzle-orm'
 import type { OfficeProfile } from '@/db/schema'
 import { revalidatePath } from 'next/cache'
 import {
-  colorFromName,
   generateOfficeAbbr,
   isValidOfficeHexColor,
   slugifyOfficeKey,
 } from '@/lib/offices'
 
 export async function updateOffice(
-  officeKey: string,
+  officeId: string,
   data: {
     profile?: OfficeProfile
     color?: string | null
@@ -24,11 +23,17 @@ export async function updateOffice(
     profile?: OfficeProfile
     color?: string
     name?: string
+    abbr?: string
     updatedAt: Date
   } = { updatedAt: new Date() }
 
   if (data.profile !== undefined) updates.profile = data.profile
-  if (data.name !== undefined) updates.name = data.name.trim()
+  if (data.name !== undefined) {
+    const name = data.name.trim()
+    if (!name) throw new Error('Office name is required.')
+    updates.name = name
+    updates.abbr = generateOfficeAbbr(name)
+  }
   if (data.color !== undefined) {
     const trimmed = data.color?.trim() ?? ''
     if (trimmed && !isValidOfficeHexColor(trimmed)) {
@@ -37,15 +42,10 @@ export async function updateOffice(
     updates.color = trimmed
   }
 
-  await db.update(offices).set(updates).where(eq(offices.key, officeKey))
+  await db.update(offices).set(updates).where(eq(offices.id, officeId))
 
-  revalidatePath(`/offices/${officeKey}`)
+  revalidatePath(`/offices/${officeId}`)
   revalidatePath('/offices')
-}
-
-/** @deprecated Use updateOffice — kept for existing call sites during migration */
-export async function updateOfficeProfile(officeKey: string, profile: OfficeProfile) {
-  await updateOffice(officeKey, { profile })
 }
 
 export async function createOffice(data: { name: string; color?: string | null }) {

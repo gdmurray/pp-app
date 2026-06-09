@@ -39,7 +39,7 @@ export function InsightsDashboard({ allPatients, allCalls, allOffices }: Insight
       if (new Date(p.recordedAt) < cutoff) return false
       if (officeFilter) {
         const o = allOffices.find((o) => o.id === p.officeId)
-        if (o?.key !== officeFilter) return false
+        if (o?.id !== officeFilter) return false
       }
       return true
     })
@@ -50,7 +50,7 @@ export function InsightsDashboard({ allPatients, allCalls, allOffices }: Insight
       if (new Date(c.recordedAt) < cutoff) return false
       if (officeFilter) {
         const o = allOffices.find((o) => o.id === c.officeId)
-        if (o?.key !== officeFilter) return false
+        if (o?.id !== officeFilter) return false
       }
       return true
     })
@@ -108,7 +108,7 @@ export function InsightsDashboard({ allPatients, allCalls, allOffices }: Insight
       const oPatients = filteredPatients.filter((p) => p.officeId === o.id)
       const oBooked = oPatients.filter(patientIsBooked)
       const rate = oPatients.length > 0 ? Math.round((oBooked.length / oPatients.length) * 100) : 0
-      return { name: o.name, key: o.key, color: resolveOfficeColor(o), value: oPatients.length, rate }
+      return { name: o.name, id: o.id, color: resolveOfficeColor(o), value: oPatients.length, rate }
     })
   }, [filteredPatients, allOffices])
 
@@ -161,10 +161,10 @@ export function InsightsDashboard({ allPatients, allCalls, allOffices }: Insight
           </button>
           {allOffices.map((o) => (
             <button
-              key={o.key}
-              onClick={() => setOfficeFilter(o.key)}
-              className={cn('px-3 py-1.5 text-xs font-semibold transition-colors', officeFilter === o.key ? 'text-white' : 'text-secondary-foreground hover:bg-muted')}
-              style={officeFilter === o.key ? { backgroundColor: resolveOfficeColor(o) } : {}}
+              key={o.id}
+              onClick={() => setOfficeFilter(o.id)}
+              className={cn('px-3 py-1.5 text-xs font-semibold transition-colors', officeFilter === o.id ? 'text-white' : 'text-secondary-foreground hover:bg-muted')}
+              style={officeFilter === o.id ? { backgroundColor: resolveOfficeColor(o) } : {}}
             >
               {o.abbr}
             </button>
@@ -279,8 +279,8 @@ export function InsightsDashboard({ allPatients, allCalls, allOffices }: Insight
           <span className="text-sm font-bold text-white">Booking Rate by Office</span>
         </div>
         <div className="p-5 space-y-4">
-          {officeBreakdown.map(({ name, key, color, value, rate }) => (
-            <div key={key} className="flex items-center gap-4">
+          {officeBreakdown.map(({ name, id, color, value, rate }) => (
+            <div key={id} className="flex items-center gap-4">
               <span
                 className="w-2 h-2 rounded-full flex-shrink-0"
                 style={{ backgroundColor: color }}

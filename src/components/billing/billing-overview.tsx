@@ -55,7 +55,7 @@ export function BillingOverview({ allPatients, allBilling, allOffices }: Billing
       if (!monthKeys.has(b.reconciliationMonth)) return false
       if (officeFilter) {
         const office = allOffices.find((o) => o.id === b.officeId)
-        if (office?.key !== officeFilter) return false
+        if (office?.id !== officeFilter) return false
       }
       return true
     })
@@ -84,8 +84,8 @@ export function BillingOverview({ allPatients, allBilling, allOffices }: Billing
           const oFields = mBilling
             .filter((b) => b.officeId === office.id)
             .map((b) => b.fields as BillingFields)
-          result[`${office.key}_pp`] = calcPPFee(oFields)
-          result[`${office.key}_office`] = calcFirstApptBilling(oFields)
+          result[`${office.id}_pp`] = calcPPFee(oFields)
+          result[`${office.id}_office`] = calcFirstApptBilling(oFields)
         }
       }
       return result
@@ -127,10 +127,10 @@ export function BillingOverview({ allPatients, allBilling, allOffices }: Billing
           </button>
           {allOffices.map((o) => (
             <button
-              key={o.key}
-              onClick={() => setOfficeFilter(o.key)}
-              className={cn('px-3 py-1.5 text-xs font-semibold transition-colors', officeFilter === o.key ? 'text-white' : 'text-secondary-foreground hover:bg-muted')}
-              style={officeFilter === o.key ? { backgroundColor: resolveOfficeColor(o) } : {}}
+              key={o.id}
+              onClick={() => setOfficeFilter(o.id)}
+              className={cn('px-3 py-1.5 text-xs font-semibold transition-colors', officeFilter === o.id ? 'text-white' : 'text-secondary-foreground hover:bg-muted')}
+              style={officeFilter === o.id ? { backgroundColor: resolveOfficeColor(o) } : {}}
             >
               {o.abbr}
             </button>
@@ -169,8 +169,8 @@ export function BillingOverview({ allPatients, allBilling, allOffices }: Billing
               ) : (
                 allOffices.map((o) => (
                   <Bar
-                    key={o.key}
-                    dataKey={`${o.key}_pp`}
+                    key={o.id}
+                    dataKey={`${o.id}_pp`}
                     name={`${o.name} PP`}
                     stackId="pp"
                     fill={resolveOfficeColor(o)}
@@ -195,8 +195,8 @@ export function BillingOverview({ allPatients, allBilling, allOffices }: Billing
               ) : (
                 allOffices.map((o) => (
                   <Bar
-                    key={o.key}
-                    dataKey={`${o.key}_office`}
+                    key={o.id}
+                    dataKey={`${o.id}_office`}
                     name={`${o.name}`}
                     stackId="office"
                     fill={resolveOfficeColor(o)}

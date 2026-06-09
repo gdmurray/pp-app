@@ -25,7 +25,7 @@ interface MissedCallModalProps {
 }
 
 export function MissedCallModal({ open, onClose, offices }: MissedCallModalProps) {
-  const [officeKey, setOfficeKey] = useState('')
+  const [officeId, setOfficeId] = useState('')
   const [voicemail, setVoicemail] = useState<'yes' | 'no' | null>(null)
   const [callbackTime, setCallbackTime] = useState('')
   const [notes, setNotes] = useState('')
@@ -36,7 +36,7 @@ export function MissedCallModal({ open, onClose, offices }: MissedCallModalProps
   const [error, setError] = useState('')
 
   function reset() {
-    setOfficeKey('')
+    setOfficeId('')
     setVoicemail(null)
     setCallbackTime('')
     setNotes('')
@@ -47,14 +47,14 @@ export function MissedCallModal({ open, onClose, offices }: MissedCallModalProps
   }
 
   async function handleSubmit() {
-    if (!officeKey) { setError('Please select an office.'); return }
+    if (!officeId) { setError('Please select an office.'); return }
     if (!voicemail) { setError('Please indicate if a voicemail was left.'); return }
     setLoading(true)
     setError('')
     try {
       await logCall({
         type: 'missed',
-        officeKey,
+        officeId,
         payload: { voicemail, callbackTime, notes, callerFirst, callerLast, callerPhone },
       })
       toast.success('Missed call logged.')
@@ -88,16 +88,16 @@ export function MissedCallModal({ open, onClose, offices }: MissedCallModalProps
                 const color = resolveOfficeColor(o)
                 return (
                   <button
-                    key={o.key}
+                    key={o.id}
                     type="button"
-                    onClick={() => setOfficeKey(o.key)}
+                    onClick={() => setOfficeId(o.id)}
                     className={cn(
                       'flex flex-col items-center gap-1 p-3 rounded-lg border-2 text-sm font-semibold transition-all',
-                      officeKey === o.key
+                      officeId === o.id
                         ? 'border-current text-white'
                         : 'border-border text-secondary-foreground hover:border-primary',
                     )}
-                    style={officeKey === o.key ? { backgroundColor: color, borderColor: color } : {}}
+                    style={officeId === o.id ? { backgroundColor: color, borderColor: color } : {}}
                   >
                     <span
                       className="text-xs font-black px-2 py-1 rounded-md text-white"
@@ -105,7 +105,7 @@ export function MissedCallModal({ open, onClose, offices }: MissedCallModalProps
                     >
                       {o.abbr}
                     </span>
-                    <span className={officeKey === o.key ? 'text-white' : ''}>{o.name}</span>
+                    <span className={officeId === o.id ? 'text-white' : ''}>{o.name}</span>
                   </button>
                 )
               })}

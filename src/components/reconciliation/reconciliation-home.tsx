@@ -175,13 +175,13 @@ export function ReconciliationHome({ allPatients, allBilling, allOffices }: Reco
                   {/* Links */}
                   <div className="flex items-center justify-between pt-1 border-t border-muted">
                     <Link
-                      href={`/reconciliation/${office.key}`}
+                      href={`/reconciliation/${office.id}`}
                       className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
                     >
                       Detail <ChevronRight size={11} />
                     </Link>
                     <Link
-                      href={`/reconciliation/${office.key}/year`}
+                      href={`/reconciliation/${office.id}/year`}
                       className="text-xs text-muted-foreground hover:text-primary transition-colors"
                     >
                       Full Year →

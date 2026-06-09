@@ -61,7 +61,7 @@ export function PatientsView({ allPatients, allOffices }: PatientsViewProps) {
     if (officeFilter) {
       pts = pts.filter((p) => {
         const o = officeMap.get(p.officeId)
-        return o?.key === officeFilter
+        return o?.id === officeFilter
       })
     }
     if (statusFilter === 'new') {
@@ -254,10 +254,10 @@ export function PatientsView({ allPatients, allOffices }: PatientsViewProps) {
           </button>
           {allOffices.map((o) => (
             <button
-              key={o.key}
-              onClick={() => setOfficeFilter(o.key)}
-              className={cn('px-3 py-1.5 text-xs font-semibold transition-colors', officeFilter === o.key ? 'text-white' : 'text-secondary-foreground hover:bg-muted')}
-              style={officeFilter === o.key ? { backgroundColor: resolveOfficeColor(o) } : {}}
+              key={o.id}
+              onClick={() => setOfficeFilter(o.id)}
+              className={cn('px-3 py-1.5 text-xs font-semibold transition-colors', officeFilter === o.id ? 'text-white' : 'text-secondary-foreground hover:bg-muted')}
+              style={officeFilter === o.id ? { backgroundColor: resolveOfficeColor(o) } : {}}
             >
               {o.abbr}
             </button>

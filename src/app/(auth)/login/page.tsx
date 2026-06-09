@@ -1,32 +1,74 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 
-export default function LoginPage() {
-  const router = useRouter()
+function LoginForm() {
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
+  useEffect(() => {
+    const authError = searchParams.get('error')
+    if (authError === 'auth') {
+      setError('Sign-in failed. Please try again.')
+    }
+  }, [searchParams])
+
+  // OAuth can land here with #access_token if Supabase redirect URL is misconfigured.
+  // Finish the session in the browser, then hard-navigate so cookies reach the server.
+  useEffect(() => {
+    let cancelled = false
+
+    async function handleOAuthReturn() {
+      const hasHashToken = window.location.hash.includes('access_token')
+      if (!hasHashToken) return
+
+      setLoading(true)
+      setError('')
+
+      const supabase = createClient()
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+
+      if (cancelled) return
+
+      if (session && !sessionError) {
+        window.history.replaceState(null, '', '/login')
+        window.location.replace('/')
+        return
+      }
+
+      setError('Sign-in failed. Please try again.')
+      setLoading(false)
+    }
+
+    handleOAuthReturn()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     setLoading(true)
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
-      setError(error.message)
+    try {
+      const supabase = createClient()
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+      if (signInError) {
+        setError(signInError.message)
+        return
+      }
+      window.location.replace('/')
+    } finally {
       setLoading(false)
-    } else {
-      router.push('/')
-      router.refresh()
     }
   }
 
@@ -34,16 +76,17 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
     const supabase = createClient()
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     })
-    if (error) {
-      setError(error.message)
+    if (oauthError) {
+      setError(oauthError.message)
       setLoading(false)
     }
+    // Browser navigates away on success; no need to clear loading.
   }
 
   return (
@@ -133,5 +176,19 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-accent">
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   )
 }

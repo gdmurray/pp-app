@@ -50,7 +50,7 @@ export function OfficesHome({ allOffices, allPatients, allCalls }: OfficesHomePr
       setAddOpen(false)
       setOfficeName('')
       setOfficeColor('')
-      router.push(`/offices/${office.key}`)
+      router.push(`/offices/${office.id}`)
     } catch {
       toast.error('Failed to create office.')
     } finally {
@@ -99,7 +99,7 @@ export function OfficesHome({ allOffices, allPatients, allCalls }: OfficesHomePr
                     </p>
                   </div>
                   <Link
-                    href={`/offices/${office.key}`}
+                    href={`/offices/${office.id}`}
                     className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
                   >
                     Profile <ChevronRight size={11} />

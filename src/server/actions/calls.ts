@@ -8,20 +8,20 @@ import { revalidatePath } from 'next/cache'
 
 export async function logCall({
   type,
-  officeKey,
+  officeId,
   payload,
 }: {
   type: 'missed' | 'no_lead'
-  officeKey: string
+  officeId: string
   payload: CallPayload
 }) {
   const [office] = await db
     .select({ id: offices.id })
     .from(offices)
-    .where(eq(offices.key, officeKey))
+    .where(eq(offices.id, officeId))
     .limit(1)
 
-  if (!office) throw new Error(`Office not found: ${officeKey}`)
+  if (!office) throw new Error(`Office not found: ${officeId}`)
 
   await db.insert(calls).values({
     officeId: office.id,

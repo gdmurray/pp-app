@@ -10,10 +10,11 @@
     "lint:fix": "eslint --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "db:push": "drizzle-kit push",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio",
-    "db:seed": "dotenv -e .env.local -- tsx src/db/seed.ts"
+    "db:push": "DOTENV_CONFIG_PATH=.env.local node -r dotenv/config node_modules/drizzle-kit/bin.cjs push",
+    "db:migrate": "DOTENV_CONFIG_PATH=.env.local node -r dotenv/config node_modules/drizzle-kit/bin.cjs migrate",
+    "db:studio": "DOTENV_CONFIG_PATH=.env.local node -r dotenv/config node_modules/drizzle-kit/bin.cjs studio",
+    "db:seed": "DOTENV_CONFIG_PATH=.env.local tsx src/db/seed.ts",
+    "db:backfill-colors": "DOTENV_CONFIG_PATH=.env.local tsx src/db/backfill-office-colors.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
