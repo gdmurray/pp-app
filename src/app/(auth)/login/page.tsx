@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { authErrorMessage, getAuthHashError, parseAuthHash } from '@/lib/auth-hash'
 
 function LoginForm() {
   const searchParams = useSearchParams()
@@ -16,9 +17,13 @@ function LoginForm() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    const authError = searchParams.get('error')
-    if (authError === 'auth') {
-      setError('Sign-in failed. Please try again.')
+    const message = authErrorMessage(
+      searchParams.get('error'),
+      searchParams.get('error_code'),
+      searchParams.get('error_description'),
+    )
+    if (searchParams.get('error')) {
+      setError(message)
     }
   }, [searchParams])
 
@@ -28,7 +33,23 @@ function LoginForm() {
     let cancelled = false
 
     async function handleOAuthReturn() {
-      const hasHashToken = window.location.hash.includes('access_token')
+      const hashParams = parseAuthHash()
+      if (!hashParams) return
+
+      const hashError = getAuthHashError(hashParams)
+      if (hashError) {
+        setError(
+          authErrorMessage(
+            hashError.error,
+            hashError.errorCode,
+            hashError.errorDescription,
+          ),
+        )
+        window.history.replaceState(null, '', '/login')
+        return
+      }
+
+      const hasHashToken = hashParams.has('access_token')
       if (!hasHashToken) return
 
       setLoading(true)

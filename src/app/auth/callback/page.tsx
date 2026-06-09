@@ -3,6 +3,7 @@
 import { Suspense, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { authErrorLoginPath, getAuthHashError, parseAuthHash } from '@/lib/auth-hash'
 
 /**
  * Finishes OAuth (PKCE ?code= or legacy #access_token hash).
@@ -15,6 +16,16 @@ function AuthCallbackHandler() {
     let cancelled = false
 
     async function finish() {
+      const hashParams = parseAuthHash()
+      if (hashParams && getAuthHashError(hashParams)) {
+        const supabase = createClient()
+        await supabase.auth.signOut()
+        if (!cancelled) {
+          window.location.replace(authErrorLoginPath(hashParams))
+        }
+        return
+      }
+
       const supabase = createClient()
       const code = searchParams.get('code')
 
